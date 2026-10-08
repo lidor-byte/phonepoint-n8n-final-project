@@ -1,0 +1,52 @@
+{
+  "name": "AI Birthday Greeting - Airtable + Brevo",
+  "nodes": [
+    {
+      "parameters": { "httpMethod": "POST", "path": "birthday-greeting", "responseMode": "responseNode", "options": {} },
+      "id": "1524308c-8622-4a92-9ee7-001", "name": "Birthday Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [ -780, 0 ], "webhookId": "birthday-greeting-webhook"
+    },
+    {
+      "parameters": { "assignments": { "assignments": [ { "id": "a1", "name": "recipientName", "value": "={{ $json.body.recipientName }}", "type": "string" }, { "id": "a2", "name": "senderName", "value": "={{ $json.body.senderName }}", "type": "string" }, { "id": "a3", "name": "recipientEmail", "value": "={{ $json.body.recipientEmail }}", "type": "string" }, { "id": "a4", "name": "favoriteTopics", "value": "={{ $json.body.favoriteTopics }}", "type": "string" }, { "id": "a5", "name": "style", "value": "={{ $json.body.style }}", "type": "string" } ] }, "options": {} },
+      "id": "1524308c-8622-4a92-9ee7-002", "name": "Read 5 Form Fields", "type": "n8n-nodes-base.set", "typeVersion": 3.4, "position": [ -560, 0 ]
+    },
+    {
+      "parameters": { "promptType": "define", "text": "Write a birthday greeting in Hebrew for {{ $json.recipientName }} from {{ $json.senderName }}. Their favorite topics: {{ $json.favoriteTopics }}. Requested style: {{ $json.style }}. Make it joyful, personal, 80-120 words, and do not add a subject line.", "options": { "systemMessage": "You create heartfelt, polished Hebrew birthday greetings. Use the recipient's favorite topics naturally and never invent personal facts." } },
+      "id": "1524308c-8622-4a92-9ee7-003", "name": "Create AI Greeting", "type": "@n8n/n8n-nodes-langchain.chainLlm", "typeVersion": 1.5, "position": [ -320, 0 ]
+    },
+    {
+      "parameters": { "modelName": "models/gemini-2.0-flash", "options": {} },
+      "id": "1524308c-8622-4a92-9ee7-004", "name": "Google Gemini Chat Model", "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", "typeVersion": 1, "position": [ -320, 180 ]
+    },
+    {
+      "parameters": { "assignments": { "assignments": [ { "id": "b1", "name": "Recipient Name", "value": "={{ $node[\"Read 5 Form Fields\"].json.recipientName }}", "type": "string" }, { "id": "b2", "name": "Sender Name", "value": "={{ $node[\"Read 5 Form Fields\"].json.senderName }}", "type": "string" }, { "id": "b3", "name": "Recipient Email", "value": "={{ $node[\"Read 5 Form Fields\"].json.recipientEmail }}", "type": "string" }, { "id": "b4", "name": "Favorite Topics", "value": "={{ $node[\"Read 5 Form Fields\"].json.favoriteTopics }}", "type": "string" }, { "id": "b5", "name": "AI Greeting", "value": "={{ $json.text }}", "type": "string" }, { "id": "b6", "name": "Email Sent", "value": "={{ new Date().toISOString() }}", "type": "string" } ] }, "options": {} },
+      "id": "1524308c-8622-4a92-9ee7-005", "name": "Prepare 6 Airtable Fields", "type": "n8n-nodes-base.set", "typeVersion": 3.4, "position": [ -80, 0 ]
+    },
+    {
+      "parameters": { "operation": "create", "application": "REPLACE_WITH_AIRTABLE_BASE_ID", "table": "Birthday Greetings", "columns": { "mappingMode": "defineBelow", "value": { "Recipient Name": "={{ $json[\"Recipient Name\"] }}", "Sender Name": "={{ $json[\"Sender Name\"] }}", "Recipient Email": "={{ $json[\"Recipient Email\"] }}", "Favorite Topics": "={{ $json[\"Favorite Topics\"] }}", "AI Greeting": "={{ $json[\"AI Greeting\"] }}", "Email Sent": "={{ $json[\"Email Sent\"] }}" }, "matchingColumns": [], "schema": [] }, "options": {} },
+      "id": "1524308c-8622-4a92-9ee7-006", "name": "Create Airtable Record", "type": "n8n-nodes-base.airtable", "typeVersion": 2.1, "position": [ 160, -80 ]
+    },
+    {
+      "parameters": { "fromEmail": "REPLACE_WITH_VERIFIED_BREVO_SENDER@example.com", "toEmail": "={{ $node[\"Read 5 Form Fields\"].json.recipientEmail }}", "subject": "יום הולדת שמח, {{ $node[\"Read 5 Form Fields\"].json.recipientName }}!", "text": "={{ $node[\"Prepare 6 Airtable Fields\"].json[\"AI Greeting\"] }}", "options": {} },
+      "id": "1524308c-8622-4a92-9ee7-007", "name": "Send via Brevo", "type": "n8n-nodes-base.brevo", "typeVersion": 1, "position": [ 160, 100 ]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ { success: true, message: 'Greeting created, saved to Airtable and sent with Brevo.', greeting: $node[\"Prepare 6 Airtable Fields\"].json[\"AI Greeting\"] } }}", "options": {} },
+      "id": "1524308c-8622-4a92-9ee7-008", "name": "Return Greeting Response", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.1, "position": [ 400, 100 ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Birthday Webhook": { "main": [ [ { "node": "Read 5 Form Fields", "type": "main", "index": 0 } ] ] },
+    "Read 5 Form Fields": { "main": [ [ { "node": "Create AI Greeting", "type": "main", "index": 0 } ] ] },
+    "Google Gemini Chat Model": { "ai_languageModel": [ [ { "node": "Create AI Greeting", "type": "ai_languageModel", "index": 0 } ] ] },
+    "Create AI Greeting": { "main": [ [ { "node": "Prepare 6 Airtable Fields", "type": "main", "index": 0 } ] ] },
+    "Prepare 6 Airtable Fields": { "main": [ [ { "node": "Create Airtable Record", "type": "main", "index": 0 } ] ] },
+    "Create Airtable Record": { "main": [ [ { "node": "Send via Brevo", "type": "main", "index": 0 } ] ] },
+    "Send via Brevo": { "main": [ [ { "node": "Return Greeting Response", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "birthday-greeting-v1",
+  "meta": { "templateCredsSetupCompleted": false },
+  "tags": []
+}

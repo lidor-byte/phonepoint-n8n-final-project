@@ -1,0 +1,47 @@
+{
+  "name": "PhonePoint AI Chatbot - Gemini + GitHub Knowledge",
+  "nodes": [
+    {
+      "parameters": { "httpMethod": "POST", "path": "phonepoint-chat", "responseMode": "responseNode", "options": {} },
+      "id": "0efc969b-1a95-4d86-9400-001", "name": "PhonePoint Chat Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [ -760, 0 ], "webhookId": "phonepoint-chat-webhook"
+    },
+    {
+      "parameters": { "url": "https://raw.githubusercontent.com/OWNER/REPOSITORY/main/knowledge/phonepoint-knowledge.txt", "options": { "response": { "response": { "responseFormat": "text" } } } },
+      "id": "0efc969b-1a95-4d86-9400-002", "name": "Get PhonePoint Knowledge", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [ -500, 160 ]
+    },
+    {
+      "parameters": {
+        "promptType": "define", "text": "={{ $json.body.chatInput || $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are PhonePoint's Hebrew customer-service assistant. Answer warmly and concisely in Hebrew. Answer ONLY questions about PhonePoint, its phones, accessories, policies, store hours, and choosing a phone. If the question is unrelated, reply exactly: אני כאן כדי לעזור רק בנושאים שקשורים ל-PhonePoint ולמוצרי החנות. איך אוכל לסייע לגבי טלפון או אביזר? Never invent stock availability, discounts, product details, or policies. Say that live stock must be checked by calling the store. Use the following trusted business knowledge retrieved from GitHub:\n\n{{ $node[\"Get PhonePoint Knowledge\"].json.data }}"
+        }
+      },
+      "id": "0efc969b-1a95-4d86-9400-003", "name": "PhonePoint AI Agent", "type": "@n8n/n8n-nodes-langchain.agent", "typeVersion": 1.7, "position": [ -200, 0 ]
+    },
+    {
+      "parameters": { "modelName": "models/gemini-2.0-flash", "options": {} },
+      "id": "0efc969b-1a95-4d86-9400-004", "name": "Google Gemini Chat Model", "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", "typeVersion": 1, "position": [ -220, 220 ]
+    },
+    {
+      "parameters": { "sessionKey": "={{ $node[\"PhonePoint Chat Webhook\"].json.body.sessionId || $node[\"PhonePoint Chat Webhook\"].json.sessionId }}", "contextWindowLength": 15 },
+      "id": "0efc969b-1a95-4d86-9400-005", "name": "15 Message Memory", "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow", "typeVersion": 1.3, "position": [ -40, 220 ]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ { output: $json.output } }}", "options": {} },
+      "id": "0efc969b-1a95-4d86-9400-006", "name": "Return Chat Reply", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.1, "position": [ 100, 0 ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "PhonePoint Chat Webhook": { "main": [ [ { "node": "Get PhonePoint Knowledge", "type": "main", "index": 0 } ] ] },
+    "Get PhonePoint Knowledge": { "main": [ [ { "node": "PhonePoint AI Agent", "type": "main", "index": 0 } ] ] },
+    "Google Gemini Chat Model": { "ai_languageModel": [ [ { "node": "PhonePoint AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
+    "15 Message Memory": { "ai_memory": [ [ { "node": "PhonePoint AI Agent", "type": "ai_memory", "index": 0 } ] ] },
+    "PhonePoint AI Agent": { "main": [ [ { "node": "Return Chat Reply", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "phonepoint-chat-v1",
+  "meta": { "templateCredsSetupCompleted": false },
+  "tags": []
+}
