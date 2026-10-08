@@ -14,7 +14,7 @@
       "id": "1524308c-8622-4a92-9ee7-003", "name": "Create AI Greeting", "type": "@n8n/n8n-nodes-langchain.chainLlm", "typeVersion": 1.5, "position": [ -320, 0 ]
     },
     {
-      "parameters": { "modelName": "models/gemini-2.0-flash", "options": {} },
+      "parameters": { "modelName": "models/gemini-3.8-flash", "options": {} },
       "id": "1524308c-8622-4a92-9ee7-004", "name": "Google Gemini Chat Model", "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", "typeVersion": 1, "position": [ -320, 180 ]
     },
     {
