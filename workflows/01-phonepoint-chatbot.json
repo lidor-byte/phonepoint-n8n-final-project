@@ -11,7 +11,7 @@
     },
     {
       "parameters": {
-        "promptType": "define", "text": "={{ $json.body.chatInput || $json.chatInput }}",
+        "promptType": "define", "text": "={{ $node['PhonePoint Chat Webhook'].json.body.chatInput || $node['PhonePoint Chat Webhook'].json.chatInput }}",
         "options": {
           "systemMessage": "You are PhonePoint's Hebrew customer-service assistant. Answer warmly and concisely in Hebrew. Answer ONLY questions about PhonePoint, its phones, accessories, policies, store hours, and choosing a phone. If the question is unrelated, reply exactly: אני כאן כדי לעזור רק בנושאים שקשורים ל-PhonePoint ולמוצרי החנות. איך אוכל לסייע לגבי טלפון או אביזר? Never invent stock availability, discounts, product details, or policies. Say that live stock must be checked by calling the store. Use the following trusted business knowledge retrieved from GitHub:\n\n{{ $node[\"Get PhonePoint Knowledge\"].json.data }}"
         }
@@ -23,7 +23,7 @@
       "id": "0efc969b-1a95-4d86-9400-004", "name": "Google Gemini Chat Model", "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", "typeVersion": 1, "position": [ -220, 220 ]
     },
     {
-      "parameters": { "sessionKey": "={{ $node[\"PhonePoint Chat Webhook\"].json.body.sessionId || $node[\"PhonePoint Chat Webhook\"].json.sessionId }}", "contextWindowLength": 15 },
+      "parameters": { "sessionKey": "phonepoint-shared-session", "contextWindowLength": 15 },
       "id": "0efc969b-1a95-4d86-9400-005", "name": "15 Message Memory", "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow", "typeVersion": 1.3, "position": [ -40, 220 ]
     },
     {
