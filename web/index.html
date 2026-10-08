@@ -27,7 +27,7 @@
     <div class="status" id="status">מחובר לעוזר PhonePoint</div>
   </main>
   <script>
-    const WEBHOOK_URL = 'PASTE_N8N_WEBHOOK_URL_HERE';
+    const WEBHOOK_URL = 'http://localhost:5678/webhook/phonepoint-chat';
     const sessionId = localStorage.phonepointSessionId || crypto.randomUUID();
     localStorage.phonepointSessionId = sessionId;
     const messages = document.querySelector('#messages'), form = document.querySelector('#chatForm'), input = document.querySelector('#question'), status = document.querySelector('#status');
