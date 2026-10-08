@@ -19,7 +19,7 @@
       "id": "0efc969b-1a95-4d86-9400-003", "name": "PhonePoint AI Agent", "type": "@n8n/n8n-nodes-langchain.agent", "typeVersion": 1.7, "position": [ -200, 0 ]
     },
     {
-      "parameters": { "modelName": "models/gemini-2.0-flash", "options": {} },
+      "parameters": { "modelName": "models/gemini-3.8-flash", "options": {} },
       "id": "0efc969b-1a95-4d86-9400-004", "name": "Google Gemini Chat Model", "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", "typeVersion": 1, "position": [ -220, 220 ]
     },
     {
