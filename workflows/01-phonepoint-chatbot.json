@@ -6,7 +6,7 @@
       "id": "0efc969b-1a95-4d86-9400-001", "name": "PhonePoint Chat Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [ -760, 0 ], "webhookId": "phonepoint-chat-webhook"
     },
     {
-      "parameters": { "url": "https://raw.githubusercontent.com/OWNER/REPOSITORY/main/knowledge/phonepoint-knowledge.txt", "options": { "response": { "response": { "responseFormat": "text" } } } },
+      "parameters": { "url": "https://raw.githubusercontent.com/lidor-byte/phonepoint-n8n-final-project/main/knowledge/phonepoint-knowledge.txt", "options": { "response": { "response": { "responseFormat": "text" } } } },
       "id": "0efc969b-1a95-4d86-9400-002", "name": "Get PhonePoint Knowledge", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [ -500, 160 ]
     },
     {
@@ -34,14 +34,3 @@
   "pinData": {},
   "connections": {
     "PhonePoint Chat Webhook": { "main": [ [ { "node": "Get PhonePoint Knowledge", "type": "main", "index": 0 } ] ] },
-    "Get PhonePoint Knowledge": { "main": [ [ { "node": "PhonePoint AI Agent", "type": "main", "index": 0 } ] ] },
-    "Google Gemini Chat Model": { "ai_languageModel": [ [ { "node": "PhonePoint AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
-    "15 Message Memory": { "ai_memory": [ [ { "node": "PhonePoint AI Agent", "type": "ai_memory", "index": 0 } ] ] },
-    "PhonePoint AI Agent": { "main": [ [ { "node": "Return Chat Reply", "type": "main", "index": 0 } ] ] }
-  },
-  "active": false,
-  "settings": { "executionOrder": "v1" },
-  "versionId": "phonepoint-chat-v1",
-  "meta": { "templateCredsSetupCompleted": false },
-  "tags": []
-}
