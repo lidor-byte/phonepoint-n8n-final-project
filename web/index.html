@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhonePoint AI</title>
+  <style>
+    :root { --ink:#122033; --muted:#6b7a90; --blue:#2563eb; --cyan:#0ea5e9; --line:#e6edf6; --paper:#fff; }
+    * { box-sizing:border-box; } body { margin:0; min-height:100vh; font-family:Arial, sans-serif; color:var(--ink); background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 45%,#e0f2fe 100%); display:grid; place-items:center; padding:24px; }
+    .shell { width:min(760px,100%); height:min(760px,calc(100vh - 48px)); min-height:540px; background:var(--paper); border:1px solid var(--line); box-shadow:0 24px 60px #1e3a5f22; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; }
+    header { color:white; background:linear-gradient(120deg,#0f3d7a,#2563eb 55%,#0ea5e9); padding:22px 26px; display:flex; align-items:center; gap:14px; }
+    .mark { width:42px; height:42px; border-radius:14px; background:#fff; color:var(--blue); display:grid; place-items:center; font-size:23px; } h1 { font-size:20px; margin:0; } header p { margin:4px 0 0; opacity:.84; font-size:13px; }
+    #messages { flex:1; overflow:auto; padding:24px; background:#fbfdff; display:flex; flex-direction:column; gap:14px; }
+    .message { max-width:82%; line-height:1.55; padding:12px 15px; border-radius:18px; font-size:15px; white-space:pre-wrap; }
+    .bot { align-self:flex-start; background:#e8f2ff; border-bottom-right-radius:4px; } .user { align-self:flex-end; color:white; background:var(--blue); border-bottom-left-radius:4px; }
+    .suggestions { display:flex; gap:8px; flex-wrap:wrap; padding:0 24px 15px; background:#fbfdff; } button.suggestion { background:white; color:#24518d; border:1px solid #cfe0f7; border-radius:999px; padding:8px 12px; cursor:pointer; }
+    form { border-top:1px solid var(--line); padding:16px; display:flex; gap:10px; background:white; } input { flex:1; min-width:0; border:1px solid #cbd5e1; outline:0; border-radius:14px; padding:13px; font:inherit; } input:focus { border-color:var(--blue); box-shadow:0 0 0 3px #2563eb22; } form button { border:0; cursor:pointer; color:white; background:var(--blue); border-radius:14px; padding:0 20px; font:inherit; font-weight:bold; } .status { font-size:12px; color:var(--muted); padding:0 24px 13px; background:white; }
+    @media (max-width:560px) { body{padding:0}.shell{height:100vh;border-radius:0}.message{max-width:90%} }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header><div class="mark">◉</div><div><h1>PhonePoint AI</h1><p>עוזר החנות הדיגיטלי - כאן כדי לעזור בטלפונים, אביזרים ושירות</p></div></header>
+    <section id="messages" aria-live="polite"></section>
+    <div class="suggestions"><button class="suggestion">איזה טלפון מתאים לצילום?</button><button class="suggestion">מה שעות הפעילות?</button><button class="suggestion">כמה עולה מגן מסך?</button></div>
+    <form id="chatForm"><input id="question" autocomplete="off" placeholder="כתבו שאלה על PhonePoint..." aria-label="שאלה"><button type="submit">שליחה</button></form>
+    <div class="status" id="status">מחובר לעוזר PhonePoint</div>
+  </main>
+  <script>
+    const WEBHOOK_URL = 'PASTE_N8N_WEBHOOK_URL_HERE';
+    const sessionId = localStorage.phonepointSessionId || crypto.randomUUID();
+    localStorage.phonepointSessionId = sessionId;
+    const messages = document.querySelector('#messages'), form = document.querySelector('#chatForm'), input = document.querySelector('#question'), status = document.querySelector('#status');
+    function add(text, type) { const el = document.createElement('div'); el.className = `message ${type}`; el.textContent = text; messages.append(el); messages.scrollTop = messages.scrollHeight; return el; }
+    add('שלום! אני עוזר PhonePoint. אפשר לשאול אותי על טלפונים, מחירים, אביזרים, שעות פעילות ושירותי החנות.', 'bot');
+    async function send(question) {
+      if (!question.trim()) return; add(question, 'user'); input.value = ''; input.disabled = true; status.textContent = 'העוזר חושב...';
+      try {
+        if (WEBHOOK_URL.includes('PASTE_N8N')) throw new Error('יש להגדיר את כתובת ה-Webhook בקובץ index.html.');
+        const res = await fetch(WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ chatInput:question, sessionId }) });
+        if (!res.ok) throw new Error(`שגיאת שרת (${res.status})`);
+        const data = await res.json(); add(data.output || data.response || data.text || 'לא התקבלה תשובה. נסו שוב.', 'bot');
+      } catch (error) { add(`לא הצלחתי להתחבר לעוזר: ${error.message}`, 'bot'); }
+      finally { input.disabled = false; input.focus(); status.textContent = 'מחובר לעוזר PhonePoint'; }
+    }
+    form.addEventListener('submit', e => { e.preventDefault(); send(input.value); });
+    document.querySelectorAll('.suggestion').forEach(button => button.addEventListener('click', () => send(button.textContent)));
+  </script>
+</body>
+</html>
