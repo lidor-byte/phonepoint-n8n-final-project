@@ -5,16 +5,17 @@
       "parameters": {
         "mode": "hostedChat",
         "options": {
-          "title": "PhonePoint AI",
-          "subtitle": "עוזר אישי לחנות הטלפונים PhonePoint",
-          "inputPlaceholder": "כתבו שאלה על טלפונים, אביזרים או שירות..."
+          "title": "PhonePoint AI"
         }
       },
-      "id": "0efc969b-1a95-4d86-9400-001",
+      "id": "1",
       "name": "When chat message received",
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.2,
-      "position": [-780, 0],
+      "position": [
+        -600,
+        0
+      ],
       "webhookId": "phonepoint-chat-trigger"
     },
     {
@@ -28,87 +29,113 @@
           }
         }
       },
-      "id": "0efc969b-1a95-4d86-9400-002",
+      "id": "2",
       "name": "Get PhonePoint Knowledge from GitHub",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-520, 0]
+      "position": [
+        -350,
+        0
+      ]
     },
     {
       "parameters": {
         "promptType": "define",
         "text": "={{ $('When chat message received').item.json.chatInput }}",
         "options": {
-          "systemMessage": "=את/ה נציג/ת שירות לקוחות של PhonePoint, חנות טלפונים. השב/י בעברית, בחמימות ובקצרה. מותר לענות רק על PhonePoint, טלפונים, אביזרים, תיקונים, שעות פעילות, מדיניות החנות והתאמת טלפון. אם השאלה אינה קשורה לעסק, השב/י בדיוק: אני כאן כדי לעזור רק בנושאים שקשורים ל-PhonePoint ולמוצרי החנות. איך אוכל לסייע לגבי טלפון או אביזר? אין להמציא מלאי, מבצעים, מפרטי מוצרים או מדיניות; לגבי מלאי עדכני יש להפנות לבדיקה מול החנות. הסתמך/י רק על המידע הבא שהתקבל מקובץ הידע ב-GitHub:
-
-{{ $json.data }}"
+          "systemMessage": "=את/ה נציג/ת שירות לקוחות של PhonePoint. ענה/י רק על טלפונים, אביזרים, תיקונים, שעות פעילות ומדיניות החנות. אם השאלה לא קשורה, השב/י: אני כאן כדי לעזור רק בנושאים שקשורים ל-PhonePoint ולמוצרי החנות. מידע מהחנות: {{ $json.data }}"
         }
       },
-      "id": "0efc969b-1a95-4d86-9400-003",
+      "id": "3",
       "name": "PhonePoint AI Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
-      "position": [-120, 0]
+      "position": [
+        -100,
+        0
+      ]
     },
     {
       "parameters": {
         "modelName": "models/gemini-2.0-flash",
         "options": {}
       },
-      "id": "0efc969b-1a95-4d86-9400-004",
+      "id": "4",
       "name": "Google Gemini Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
-      "position": [-180, 220]
+      "position": [
+        -100,
+        200
+      ]
     },
     {
       "parameters": {
         "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
         "contextWindowLength": 15
       },
-      "id": "0efc969b-1a95-4d86-9400-005",
+      "id": "5",
       "name": "15 Message Memory",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
-      "position": [20, 220]
+      "position": [
+        100,
+        200
+      ]
     }
   ],
   "pinData": {},
   "connections": {
     "When chat message received": {
-      "main": [[{
-        "node": "Get PhonePoint Knowledge from GitHub",
-        "type": "main",
-        "index": 0
-      }]]
+      "main": [
+        [
+          {
+            "node": "Get PhonePoint Knowledge from GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Get PhonePoint Knowledge from GitHub": {
-      "main": [[{
-        "node": "PhonePoint AI Agent",
-        "type": "main",
-        "index": 0
-      }]]
+      "main": [
+        [
+          {
+            "node": "PhonePoint AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Google Gemini Chat Model": {
-      "ai_languageModel": [[{
-        "node": "PhonePoint AI Agent",
-        "type": "ai_languageModel",
-        "index": 0
-      }]]
+      "ai_languageModel": [
+        [
+          {
+            "node": "PhonePoint AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     },
     "15 Message Memory": {
-      "ai_memory": [[{
-        "node": "PhonePoint AI Agent",
-        "type": "ai_memory",
-        "index": 0
-      }]]
+      "ai_memory": [
+        [
+          {
+            "node": "PhonePoint AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "phonepoint-chatbot-v2",
+  "versionId": "phonepoint-chatbot-v3",
   "meta": {
     "templateCredsSetupCompleted": false
   },
